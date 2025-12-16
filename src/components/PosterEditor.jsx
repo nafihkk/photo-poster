@@ -10,7 +10,7 @@ const FRAME_CONFIG = {
   // Example values — change to match your template's layout.
   // Using values that suit a left-side portrait frame (tweak as necessary)
   x: 60,    // px from left
-  y: 560,    // px from top
+  y: 500,    // px from top
   width: 430, // frame width in px
   height: 570 // frame height in px
 };

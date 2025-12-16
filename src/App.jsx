@@ -13,7 +13,7 @@ export default function App() {
         <PosterEditor />
       </main>
 
-      <footer className="footer">Made with ♥ — client-side only</footer>
+      <footer className="footer">Made with ♥ only</footer>
     </div>
   )
 }
