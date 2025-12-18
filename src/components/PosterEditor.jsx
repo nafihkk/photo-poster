@@ -9,10 +9,10 @@ import CropModal from './CropModal'
 const FRAME_CONFIG = {
   // Example values — change to match your template's layout.
   // Using values that suit a left-side portrait frame (tweak as necessary)
-  x: 60,    // px from left
-  y: 500,    // px from top
-  width: 430, // frame width in px
-  height: 570 // frame height in px
+  x: 95,    // px from left
+  y: 300,    // px from top
+  width: 330, // frame width in px
+  height: 370 // frame height in px
 };
 
 export default function PosterEditor(){
@@ -34,6 +34,25 @@ export default function PosterEditor(){
       img.src = src
     })
   }
+
+  function drawRoundedImage(ctx, img, x, y, w, h, r) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.clip();
+
+  ctx.drawImage(img, x, y, w, h);
+  ctx.restore();
+}
 
   function onFileChange(e){
     const f = e.target.files?.[0]
@@ -79,7 +98,16 @@ export default function PosterEditor(){
 
         // croppedDataUrl likely has same pixel size as the cropped area chosen in crop modal.
         // We'll simply draw it to the frame rectangle (it will be stretched if sizes differ).
-        ctx.drawImage(img, FRAME_CONFIG.x, FRAME_CONFIG.y, FRAME_CONFIG.width, FRAME_CONFIG.height)
+        // ctx.drawImage(img, FRAME_CONFIG.x, FRAME_CONFIG.y, FRAME_CONFIG.width, FRAME_CONFIG.height)
+        drawRoundedImage(
+  ctx,
+  img,
+  FRAME_CONFIG.x,
+  FRAME_CONFIG.y,
+  FRAME_CONFIG.width,
+  FRAME_CONFIG.height,
+  20 // radius (match preview)
+)
       } else {
         // optional: draw placeholder or do nothing
       }
@@ -89,15 +117,15 @@ export default function PosterEditor(){
         ctx.save()
         const fontSize = Math.round(Math.max(18, FRAME_CONFIG.width * 0.07)) // scale with frame width
         ctx.font = `700 ${fontSize}px Inter, sans-serif`
-        ctx.fillStyle = '#ffffff' // choose color that contrasts; adjust if necessary
+        ctx.fillStyle = '#2c0e0eff' // choose color that contrasts; adjust if necessary
         ctx.textAlign = 'center'
         ctx.textBaseline = 'top'
         // position: centered under the frame; slight gap
         const textX = FRAME_CONFIG.x + FRAME_CONFIG.width / 2
         const textY = FRAME_CONFIG.y + FRAME_CONFIG.height + Math.round(fontSize * 0.4)
         // text shadow for readability
-        ctx.shadowColor = 'rgba(0,0,0,0.6)'
-        ctx.shadowBlur = 8
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'
+        ctx.shadowBlur = 6
         ctx.fillText(name, textX, textY)
         ctx.restore()
       }
@@ -177,13 +205,13 @@ export default function PosterEditor(){
             <div style={{
               position:'absolute',
               left: `${(FRAME_CONFIG.x / templateRef.current.width) * 100}%`,
-              top: `${((FRAME_CONFIG.y + FRAME_CONFIG.height + 10) / templateRef.current.height) * 100}%`,
+              top: `${((FRAME_CONFIG.y + FRAME_CONFIG.height + 1) / templateRef.current.height) * 100}%`,
               width: `${(FRAME_CONFIG.width / templateRef.current.width) * 100}%`,
               transform:'translateX(0%)',
               textAlign:'center',
               pointerEvents:'none'
             }}>
-              <div style={{ color:'#fff', fontWeight:700, textShadow:'0 3px 8px rgba(0,0,0,0.6)', fontSize:'clamp(12px, 2.8vw, 28px)' }}>{name}</div>
+              <div style={{ color:'#3b0a0aff', fontWeight:500, textShadow:'0 3px 8px rgba(0,0,0,0.6)', fontSize:'clamp(10px, 1.8vw, 16px)' }}>{name}</div>
             </div>
           )}
         </div>
