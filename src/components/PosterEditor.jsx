@@ -9,10 +9,12 @@ import CropModal from './CropModal'
 const FRAME_CONFIG = {
   // Example values — change to match your template's layout.
   // Using values that suit a left-side portrait frame (tweak as necessary)
-  x: 95,    // px from left
-  y: 300,    // px from top
-  width: 330, // frame width in px
-  height: 370 // frame height in px
+  x: 1154,    // px from left
+  y: 430,    // px from top
+  width: 475, // frame width in px
+  height: 575, // frame height in px
+  radius : 85  // corner radius in px
+  
 };
 
 export default function PosterEditor(){
@@ -99,14 +101,14 @@ export default function PosterEditor(){
         // croppedDataUrl likely has same pixel size as the cropped area chosen in crop modal.
         // We'll simply draw it to the frame rectangle (it will be stretched if sizes differ).
         // ctx.drawImage(img, FRAME_CONFIG.x, FRAME_CONFIG.y, FRAME_CONFIG.width, FRAME_CONFIG.height)
-        drawRoundedImage(
+drawRoundedImage(
   ctx,
   img,
   FRAME_CONFIG.x,
   FRAME_CONFIG.y,
   FRAME_CONFIG.width,
   FRAME_CONFIG.height,
-  20 // radius (match preview)
+  FRAME_CONFIG.radius
 )
       } else {
         // optional: draw placeholder or do nothing
@@ -216,7 +218,7 @@ export default function PosterEditor(){
           )}
         </div>
 
-        <p className="hint">Preview: the cropped image and name show where they will appear on the final poster.</p>
+        <p className="hint">Preview: the cropped image and name will appear on the final poster.</p>
       </div>
 
       {showCrop && uploadedDataUrl && (
