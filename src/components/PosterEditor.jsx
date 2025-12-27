@@ -78,75 +78,174 @@ export default function PosterEditor(){
 
   function cancelCrop(){ setShowCrop(false) }
 
-  async function downloadJPEG(){
-    try{
-      // load template to know its natural size
-      const tpl = await loadImage(templateSrc)
-      const W = tpl.width
-      const H = tpl.height
+//   async function downloadJPEG(){
+//     try{
+//       // load template to know its natural size
+//       const tpl = await loadImage(templateSrc)
+//       const W = tpl.width
+//       const H = tpl.height
 
-      // create canvas with template natural dimensions
-      const canvas = document.createElement('canvas')
-      canvas.width = W
-      canvas.height = H
-      const ctx = canvas.getContext('2d')
+//       // create canvas with template natural dimensions
+//       const canvas = document.createElement('canvas')
+//       canvas.width = W
+//       canvas.height = H
+//       const ctx = canvas.getContext('2d')
 
-      // draw template
-      ctx.drawImage(tpl, 0, 0, W, H)
+//       // draw template
+//       ctx.drawImage(tpl, 0, 0, W, H)
 
-      // draw cropped photo into FRAME_CONFIG position & size
-      if (croppedDataUrl){
-        const img = await loadImage(croppedDataUrl)
+//       // draw cropped photo into FRAME_CONFIG position & size
+//       if (croppedDataUrl){
+//         const img = await loadImage(croppedDataUrl)
 
-        // croppedDataUrl likely has same pixel size as the cropped area chosen in crop modal.
-        // We'll simply draw it to the frame rectangle (it will be stretched if sizes differ).
-        // ctx.drawImage(img, FRAME_CONFIG.x, FRAME_CONFIG.y, FRAME_CONFIG.width, FRAME_CONFIG.height)
-drawRoundedImage(
-  ctx,
-  img,
-  FRAME_CONFIG.x,
-  FRAME_CONFIG.y,
-  FRAME_CONFIG.width,
-  FRAME_CONFIG.height,
-  FRAME_CONFIG.radius
-)
-      } else {
-        // optional: draw placeholder or do nothing
-      }
+//         // croppedDataUrl likely has same pixel size as the cropped area chosen in crop modal.
+//         // We'll simply draw it to the frame rectangle (it will be stretched if sizes differ).
+//         // ctx.drawImage(img, FRAME_CONFIG.x, FRAME_CONFIG.y, FRAME_CONFIG.width, FRAME_CONFIG.height)
+// drawRoundedImage(
+//   ctx,
+//   img,
+//   FRAME_CONFIG.x,
+//   FRAME_CONFIG.y,
+//   FRAME_CONFIG.width,
+//   FRAME_CONFIG.height,
+//   FRAME_CONFIG.radius
+// )
+//       } else {
+//         // optional: draw placeholder or do nothing
+//       }
 
-      // draw the name directly under the frame in a fixed position
-      if (name && name.trim()){
-        ctx.save()
-        const fontSize = Math.round(Math.max(18, FRAME_CONFIG.width * 0.07)) // scale with frame width
-        ctx.font = `700 ${fontSize}px Inter, sans-serif`
-        ctx.fillStyle = '#2c0e0eff' // choose color that contrasts; adjust if necessary
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'top'
-        // position: centered under the frame; slight gap
-        const textX = FRAME_CONFIG.x + FRAME_CONFIG.width / 2
-        const textY = FRAME_CONFIG.y + FRAME_CONFIG.height + Math.round(fontSize * 0.4)
-        // text shadow for readability
-        ctx.shadowColor = 'rgba(0,0,0,0.3)'
-        ctx.shadowBlur = 6
-        ctx.fillText(name, textX, textY)
-        ctx.restore()
-      }
+//       // draw the name directly under the frame in a fixed position
+//       if (name && name.trim()){
+//         ctx.save()
+//         const fontSize = Math.round(Math.max(18, FRAME_CONFIG.width * 0.07)) // scale with frame width
+//         ctx.font = `700 ${fontSize}px Inter, sans-serif`
+//         ctx.fillStyle = '#2c0e0eff' // choose color that contrasts; adjust if necessary
+//         ctx.textAlign = 'center'
+//         ctx.textBaseline = 'top'
+//         // position: centered under the frame; slight gap
+//         const textX = FRAME_CONFIG.x + FRAME_CONFIG.width / 2
+//         const textY = FRAME_CONFIG.y + FRAME_CONFIG.height + Math.round(fontSize * 0.4)
+//         // text shadow for readability
+//         ctx.shadowColor = 'rgba(0,0,0,0.3)'
+//         ctx.shadowBlur = 6
+//         ctx.fillText(name, textX, textY)
+//         ctx.restore()
+//       }
 
-      // export as JPEG
-      const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92)
-      const a = document.createElement('a')
-      a.href = jpegDataUrl
-      a.download = (name ? name.replace(/\s+/g,'_') : 'poster') + '.jpg'
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      setMessage('Downloaded as JPEG')
-      setTimeout(()=>setMessage(''), 2000)
-    }catch(err){
-      console.error('downloadJPEG error', err)
-      setMessage('Export failed')
-    }
+//       // export as JPEG
+//       const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92)
+//       const a = document.createElement('a')
+//       a.href = jpegDataUrl
+//       a.download = (name ? name.replace(/\s+/g,'_') : 'poster') + '.jpg'
+//       document.body.appendChild(a)
+//       a.click()
+//       a.remove()
+//       setMessage('Downloaded as JPEG')
+//       setTimeout(()=>setMessage(''), 2000)
+//     }catch(err){
+//       console.error('downloadJPEG error', err)
+//       setMessage('Export failed')
+//     }
+//   }
+async function drawPosterOnCanvas(canvas) {
+  const tpl = await loadImage(templateSrc);
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = tpl.width;
+  canvas.height = tpl.height;
+
+  // draw template
+  ctx.drawImage(tpl, 0, 0, tpl.width, tpl.height);
+
+  // draw photo with rounded corners
+  if (croppedDataUrl) {
+    const img = await loadImage(croppedDataUrl);
+    drawRoundedImage(
+      ctx,
+      img,
+      FRAME_CONFIG.x,
+      FRAME_CONFIG.y,
+      FRAME_CONFIG.width,
+      FRAME_CONFIG.height,
+      FRAME_CONFIG.radius
+    );
   }
+
+  // draw name
+  if (name && name.trim()) {
+    ctx.save();
+    const fontSize = Math.round(Math.max(18, FRAME_CONFIG.width * 0.07));
+    ctx.font = `700 ${fontSize}px Inter, sans-serif`;
+    ctx.fillStyle = "#2c0e0eff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.shadowColor = "rgba(0,0,0,0.3)";
+    ctx.shadowBlur = 6;
+
+    ctx.fillText(
+      name,
+      FRAME_CONFIG.x + FRAME_CONFIG.width / 2,
+      FRAME_CONFIG.y + FRAME_CONFIG.height + Math.round(fontSize * 0.4)
+    );
+    ctx.restore();
+  }
+}
+
+async function downloadJPEG() {
+  try {
+    const canvas = document.createElement("canvas");
+    await drawPosterOnCanvas(canvas);
+
+    const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.92);
+    const a = document.createElement("a");
+    a.href = jpegDataUrl;
+    a.download = (name ? name.replace(/\s+/g, "_") : "poster") + ".jpg";
+    a.click();
+
+    setMessage("Downloaded as JPEG");
+    setTimeout(() => setMessage(""), 2000);
+  } catch (err) {
+    console.error("downloadJPEG error", err);
+    setMessage("Export failed");
+  }
+}
+
+async function generatePosterBlob() {
+  const canvas = document.createElement("canvas");
+  await drawPosterOnCanvas(canvas);
+
+  return new Promise((resolve) => {
+    canvas.toBlob(
+      (blob) => resolve(blob),
+      "image/jpeg",
+      0.92
+    );
+  });
+}
+
+async function shareOnWhatsApp() {
+  try {
+    const blob = await generatePosterBlob();
+    const file = new File([blob], "poster.jpg", { type: "image/jpeg" });
+
+    // ✅ Mobile browsers (Chrome, Safari, etc.)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: "My Poster",
+        text: "Check out my poster!"
+      });
+      return;
+    }
+
+    // ❌ Desktop fallback (WhatsApp Web does NOT accept files)
+    alert("Please download the poster and upload it manually on WhatsApp Web.");
+
+  } catch (err) {
+    console.error("WhatsApp share failed", err);
+    alert("Sharing failed. Please try download instead.");
+  }
+}
 
   return (
     <div className="editor-wrap">
@@ -166,6 +265,10 @@ drawRoundedImage(
         <div className="actions">
           <button className="btn" onClick={()=>setShowCrop(true)} disabled={!uploadedDataUrl}>Crop</button>
           <button className="btn" onClick={downloadJPEG}>Download</button>
+          <button className="btn whatsapp" onClick={shareOnWhatsApp}>
+  <img src="/whatsapp.svg" width="20" /> Share
+</button>
+
           <button className="btn ghost" onClick={() => { setUploadedDataUrl(null); setCroppedDataUrl(null); setName(''); }}>Reset</button>
         </div>
 
