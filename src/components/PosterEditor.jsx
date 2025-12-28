@@ -233,7 +233,7 @@ async function shareOnWhatsApp() {
       await navigator.share({
         files: [file],
         title: "My Poster",
-        text: "Check out my poster!"
+        text: "ഞാനും പങ്കാളിയായി "
       });
       return;
     }
